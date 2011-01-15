@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.002     2011-01-15 17:03:26 Asia/Seoul
     - Add omitted documents
 
 0.001     2011-01-15 16:53:48 Asia/Seoul
