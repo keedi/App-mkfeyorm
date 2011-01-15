@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    - Add omitted documents
 
 0.001     2011-01-15 16:53:48 Asia/Seoul
     - First release

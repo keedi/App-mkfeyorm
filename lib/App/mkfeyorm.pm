@@ -177,15 +177,41 @@ __END__
 
 =head1 SYNOPSIS
 
+    use App::mkfeyorm;
+    
+    my $app = App::mkfeyorm->new(
+        output_path      => 'somewhere/lib',
+        schema           => 'Schema.pm',
+        tables           => [qw(
+            MC::User
+            MC::Role
+            MC::UserRole
+            AE::Source
+            AE::Task
+            CM::Source
+            CM::Task
+        )],
+        namespace        => 'MedicalCoding',
+        table_namespace  => 'Model',
+    );
+    
+    $app->process;
+
+
+=head1 DESCRIPTION
+
+This module generates Fey::ORM based module on the fly.
+At least C<schema> and C<tables> attributes are needed.
+
 
 =attr schema
 
-Schema module name
+Schema module name (required)
 
 
 =attr tables
 
-Table module name list
+Table module name list (required)
 
 
 =attr output_path
