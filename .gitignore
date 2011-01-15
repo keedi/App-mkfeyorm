@@ -1,0 +1,19 @@
+# avoid version control files
+.git
+
+# avoid Dist::Zilla generated and utility files
+.build
+_build
+tmp
+
+# avoid temp and backup files
+*~
+*#
+*.bak
+*.old
+*.rej
+*.swp
+*.tmp
+
+# avoid archives of this distribution
+App-mkfeyorm-*
