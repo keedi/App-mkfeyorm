@@ -1,0 +1,29 @@
+package [% TABLE %];
+use Fey::ORM::Table;
+use [% SCHEMA %];
+
+use Moose;
+use MooseX::SemiAffordanceAccessor;
+use MooseX::StrictConstructor;
+use namespace::autoclean;
+
+sub load {
+    my $class = shift;
+
+    return if $class->Table;
+
+    my $schema = [% SCHEMA %]->Schema;
+    my $table  = $schema->table('[% DB_TABLE %]');
+
+    has_table( $table );
+
+    #
+    # Add another relationships like has_one, has_many or etc.
+    #
+    #has_many items => ( table => $schema->table('item') );
+}
+
+#__PACKAGE__->meta->make_immutable;
+no Moose;
+1;
+__END__

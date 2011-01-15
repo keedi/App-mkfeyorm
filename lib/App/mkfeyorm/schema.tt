@@ -1,0 +1,52 @@
+package [% SCHEMA %];
+
+use Fey::DBIManager::Source;
+use Fey::Loader;
+use Fey::ORM::Schema;
+[% FOREACH TABLE = TABLES -%]
+use [% TABLE %];
+[% END -%]
+
+sub load {
+    my ( $class, %%params ) = @_;
+
+    return if $class->Schema;
+
+    _load_schema(%%params);
+    _load_tables(qw/
+[% FOREACH TABLE = TABLES -%]
+        [% TABLE %]
+[% END -%]
+    /);
+}
+
+sub _load_schema {
+    my %%params = @_;
+
+    my $source = Fey::DBIManager::Source->new( %%params );
+    my $schema = Fey::Loader->new( dbh => $source->dbh )->make_schema;
+
+    #
+    # Add foreign key if it is needed or remove it
+    #
+    #my $fk;
+    #
+    #$fk = Fey::FK->new(
+    #    source_columns => $schema->table('src_table')->column('col_id'),
+    #    target_columns => $schema->table('dest_table')->column('col_id'),
+    #);
+    #$schema->add_foreign_key($fk);
+
+    has_schema $schema;
+
+    __PACKAGE__->DBIManager->add_source($source);
+}
+
+sub _load_tables {
+    my @tables = @_;
+
+    $_->load for @tables;
+}
+
+1;
+__END__
