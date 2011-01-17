@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    - Fix template bugs
 
 0.002     2011-01-15 17:03:26 Asia/Seoul
     - Add omitted documents
