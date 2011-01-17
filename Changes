@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.003     2011-01-17 14:14:00 Asia/Seoul
     - Fix template bugs
 
 0.002     2011-01-15 17:03:26 Asia/Seoul
