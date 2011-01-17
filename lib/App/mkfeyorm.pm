@@ -242,13 +242,13 @@ If you want to use your own template file then use this attribute.
 
 =attr schema_template
 
-Schema template file. Default is 'schema.tt'
+Schema template file. Default is C<schema.tt>.
 If you want to use your own template file then use this attribute.
 
 
 =attr table_template
 
-Table template file. Default is 'table.tt'
+Table template file. Default is C<table.tt>.
 If you want to use your own template file then use this attribute.
 
 
