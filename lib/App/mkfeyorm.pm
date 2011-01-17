@@ -200,7 +200,7 @@ __END__
 
 =head1 DESCRIPTION
 
-This module generates Fey::ORM based module on the fly.
+This module generates L<Fey::ORM> based module on the fly.
 At least C<schema> and C<tables> attributes are needed.
 
 
