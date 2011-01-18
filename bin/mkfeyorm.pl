@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# ABSTRACT: L<App::mkfeyorm> wrapper script. Make skeleton code with L<Fey::ORM>.
+# ABSTRACT: App::mkfeyorm wrapper script. Make skeleton code with Fey::ORM.
 # PODNAME: mkfeyorm.pl
 
 use utf8;
