@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    - Update template: check method parameters
 
 0.003     2011-01-17 14:14:00 Asia/Seoul
     - Fix template bugs

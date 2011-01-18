@@ -10,7 +10,8 @@ use namespace::autoclean;
 sub load {
     my $class = shift;
 
-    return if $class->Table;
+    return unless $class;
+    return if     $class->Table;
 
     my $schema = [% SCHEMA %]->Schema;
     my $table  = $schema->table('[% DB_TABLE %]');

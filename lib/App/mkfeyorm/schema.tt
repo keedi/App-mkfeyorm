@@ -10,7 +10,8 @@ use [% TABLE %];
 sub load {
     my ( $class, %params ) = @_;
 
-    return if $class->Schema;
+    return unless $schema
+    return if     $class->Schema;
 
     _load_schema(%params);
     _load_tables(qw/
