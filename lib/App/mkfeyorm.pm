@@ -181,7 +181,7 @@ __END__
     
     my $app = App::mkfeyorm->new(
         output_path      => 'somewhere/lib',
-        schema           => 'Schema.pm',
+        schema           => 'Schema',
         tables           => [qw(
             MC::User
             MC::Role
