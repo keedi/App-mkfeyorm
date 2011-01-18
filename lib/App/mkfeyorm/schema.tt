@@ -10,7 +10,7 @@ use [% TABLE %];
 sub load {
     my ( $class, %params ) = @_;
 
-    return unless $schema
+    return unless $schema;
     return if     $class->Schema;
 
     _load_schema(%params);
