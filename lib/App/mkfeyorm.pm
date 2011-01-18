@@ -1,5 +1,5 @@
 package App::mkfeyorm;
-# ABSTRACT: Make skeleton code with L<Fey::ORM>
+# ABSTRACT: Make skeleton code with Fey::ORM
 
 use Moose;
 use MooseX::SemiAffordanceAccessor;
