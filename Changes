@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.005     2011-01-19 16:31:14 Asia/Seoul
     - Cache schema object if user wants
     - Support additional foreign key setting
     - Check schema object before use to handle exception
