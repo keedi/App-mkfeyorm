@@ -4,6 +4,7 @@ Revision history for {{$dist->name}}
     - Cache schema object if user wants
     - Support additional foreign key setting
     - Check schema object before use to handle exception
+    - Send accurate parameters to Fey::DBIManager::Source->new
 
 0.004     2011-01-19 02:52:09 Asia/Seoul
     - Update template: check method parameters

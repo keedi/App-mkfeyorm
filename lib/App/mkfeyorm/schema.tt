@@ -27,7 +27,21 @@ sub load {
 sub _load_schema {
     my %params = @_;
 
-    my $source = Fey::DBIManager::Source->new( %params );
+    my %source_params = map {
+        defined $params{$_} ? ( $_ => $params{$_} ) : ();
+    } qw(
+        name
+        dbh
+        dsn
+        username
+        password
+        attributes
+        post_connect
+        auto_refresh
+        ping_interval
+    );
+
+    my $source = Fey::DBIManager::Source->new( %source_params );
 [% IF CACHE -%]
     my $schema;
     if ($params{cache_file} && -f $params{cache_file}) {
