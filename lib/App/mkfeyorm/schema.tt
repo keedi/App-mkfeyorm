@@ -16,12 +16,12 @@ sub load {
     return unless $class;
     return if     $class->Schema;
 
-    _load_schema(%params);
+    _load_schema(%params) or die "cannot load schema\n";
     _load_tables(qw/
 [% FOREACH TABLE = TABLES -%]
         [% TABLE %]
 [% END -%]
-    /);
+    /) or die "cannot load tables\n";
 }
 
 sub _load_schema {
@@ -39,6 +39,7 @@ sub _load_schema {
 [% ELSE -%]
     my $schema = Fey::Loader->new( dbh => $source->dbh )->make_schema;
 [% END -%]
+    return if ref($schema) ne 'Fey::Schema';
 
 [% IF CACHE -%]
     my $updated;
@@ -85,12 +86,16 @@ sub _load_schema {
     has_schema $schema;
 
     __PACKAGE__->DBIManager->add_source($source);
+
+    return 1;
 }
 
 sub _load_tables {
     my @tables = @_;
 
     $_->load for @tables;
+
+    return 1;
 }
 
 1;
