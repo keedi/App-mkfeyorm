@@ -6,6 +6,9 @@ use Fey::ORM::Schema;
 [% FOREACH TABLE = TABLES -%]
 use [% TABLE %];
 [% END -%]
+[% IF CACHE -%]
+use Storable;
+[% END -%]
 
 sub load {
     my ( $class, %params ) = @_;
@@ -25,7 +28,40 @@ sub _load_schema {
     my %params = @_;
 
     my $source = Fey::DBIManager::Source->new( %params );
+[% IF CACHE -%]
+    my $schema;
+    if ($params{cache_file} && -f $params{cache_file}) {
+        $schema = retrieve($params{cache_file});
+    }
+    else {
+        $schema = Fey::Loader->new( dbh => $source->dbh )->make_schema;
+    }
+[% ELSE -%]
     my $schema = Fey::Loader->new( dbh => $source->dbh )->make_schema;
+[% END -%]
+
+[% IF CACHE -%]
+    my $updated;
+[% END -%]
+    if ($params{fk_relations}) {
+[% IF CACHE -%]
+        ++$updated;
+[% END -%]
+        for my $relation ( @{ $params{fk_relations} } ) {
+            my $source_table  = $relation->{source_table};
+            my $source_column = $relation->{source_column};
+            my $target_table  = $relation->{target_table};
+            my $target_column = $relation->{target_column};
+
+            my $fk = Fey::FK->new(
+                source_columns =>
+                    $schema->table($source_table)->column($source_column),
+                target_columns =>
+                    $schema->table($target_table)->column($target_column),
+            );
+            $schema->add_foreign_key($fk);
+        }
+    }
 
     #
     # Add foreign key if it is needed or remove it
@@ -38,6 +74,14 @@ sub _load_schema {
     #);
     #$schema->add_foreign_key($fk);
 
+[% IF CACHE -%]
+    if ($params{cache_file}) {
+        if (!-e $params{cache_file} || $updated) {
+            store($schema, $params{cache_file});
+        }
+    }
+
+[% END -%]
     has_schema $schema;
 
     __PACKAGE__->DBIManager->add_source($source);

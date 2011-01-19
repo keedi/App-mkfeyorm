@@ -66,6 +66,12 @@ has 'table_template' => (
     default => $TABLE_TEMPLATE,
 );
 
+has 'cache' => (
+    is      => 'ro',
+    isa     => 'Bool',
+    default => 0,
+);
+
 has '_template' => (
     is         => 'ro',
     isa        => 'Template',
@@ -111,8 +117,9 @@ sub _process_schema {
     } @{$self->tables};
 
     my $vars = {
-        SCHEMA    => $schema,
-        TABLES    => \@tables,
+        SCHEMA => $schema,
+        TABLES => \@tables,
+        CACHE  => $self->cache,
     };
 
     $self->_template->process(
@@ -154,6 +161,7 @@ sub _process_table {
     my $vars = {
         SCHEMA   => $schema,
         TABLE    => $table,
+        CACHE    => $self->cache,
         DB_TABLE => $db_table,
     };
 
@@ -250,6 +258,12 @@ If you want to use your own template file then use this attribute.
 
 Table template file. Default is C<table.tt>.
 If you want to use your own template file then use this attribute.
+
+
+=attr cache
+
+Use cache feature or not. Default is false.
+It uses L<Storable> to save and load cache file.
 
 
 =method process

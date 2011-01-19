@@ -16,6 +16,7 @@ my ( $opt, $usage ) = describe_options(
     [ 'namespace|n=s',      'base namespace'                            ],
     [ 'table_namespace=s',  'base table namespace'                      ],
     [ 'schema_namespace=s', 'base schema namespace'                     ],
+    [ 'cache',              'turn on cache feature'                     ],
     [
         'output_path|o=s',
         'base directory (default: lib/)',
@@ -37,6 +38,7 @@ my $app = App::mkfeyorm->new(
     namespace        => $opt->namespace        || q{},
     table_namespace  => $opt->table_namespace  || q{},
     schema_namespace => $opt->schema_namespace || q{},
+    cache            => $opt->cache            || 0,
 );
 
 $app->process;
