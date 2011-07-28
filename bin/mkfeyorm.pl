@@ -33,7 +33,13 @@ print("must specify tables\n", $usage->text), exit unless $opt->tables;
 
 my $app = App::mkfeyorm->new(
     schema           => $opt->schema,
-    tables           => $opt->tables,
+    tables           => {
+        map {
+            my ( $table, $db_table ) = split /,/;
+            $table => $db_table;
+        } @{ $opt->tables }
+    },
+
     output_path      => $opt->output_path,
     namespace        => $opt->namespace        || q{},
     table_namespace  => $opt->table_namespace  || q{},
@@ -47,23 +53,36 @@ __END__
 
 =head1 SYNOPSIS
 
+If you want to generate C<My::Blog::Schema>
+and C<My::Blog::Model::*> modules, then run following script.
+
     $ mkfeyorm.pl \
-        --namespace MedicalCoding::Test \
+        --namespace My::Blog \
+        --schema Schema \
+        --table_namespace Model \
+        --tables User \
+        --tables Role \
+        --tables UserRole \
+        --tables Post \
+        --tables Comment
+
+You can also specify database name explicitly.
+
+    $ mkfeyorm.pl \
+        --namespace My::Blog \
         --table_namespace Model \
         --schema Schema \
-        --table AE::Source \
-        --table AE::Task \
-        --table CM::Source \
-        --table CM::Task \
-        --table MC::User \
-        --table MC::Role \
-        --table MC::UserRole
+        --tables User,user \
+        --tables Role,role \
+        --tables UserRole,user_role \
+        --tables Post,post \
+        --tables Comment,comment
 
 
 =head1 DESCRIPTION
 
 This is a L<App::mkfeyorm> wrapper script.
-At least C<--schema> and C<--table> options are needed.
+At least C<--schema> and C<--tables> options are needed.
 
 
 =head1 OPTIONS
