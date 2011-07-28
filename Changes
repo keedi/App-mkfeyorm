@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.006     2011-07-28 13:15:49 Asia/Seoul
     - Support explicit table name
     - Make cache directory automatically
 
