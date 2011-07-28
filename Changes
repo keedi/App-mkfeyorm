@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    - Support explicit table name
+    - Make cache directory automatically
 
 0.005     2011-01-19 16:31:14 Asia/Seoul
     - Cache schema object if user wants
