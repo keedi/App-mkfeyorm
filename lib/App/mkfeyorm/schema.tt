@@ -8,6 +8,8 @@ use [% TABLE %];
 [% END -%]
 [% IF CACHE -%]
 use Storable;
+use File::Basename;
+use File::Path qw(make_path);
 [% END -%]
 
 sub load {
@@ -92,6 +94,8 @@ sub _load_schema {
 [% IF CACHE -%]
     if ($params{cache_file}) {
         if (!-e $params{cache_file} || $updated) {
+            my $dirname = dirname($params{cache_file});
+            make_path($dirname) unless -e $dirname;
             store($schema, $params{cache_file});
         }
     }
