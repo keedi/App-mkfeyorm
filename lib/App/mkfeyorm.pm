@@ -5,16 +5,12 @@ use Moose;
 use Moose::Util::TypeConstraints;
 use MooseX::SemiAffordanceAccessor;
 use MooseX::StrictConstructor;
-use namespace::autoclean;
 use autodie;
 
-use Template;
+use Data::Section -setup;
 use File::Basename;
 use File::Spec::Functions;
-
-( my $TEMPLATE_DIR = $INC{'App/mkfeyorm.pm'} ) =~ s/\.pm$//;
-my $SCHEMA_TEMPLATE = 'schema.tt';
-my $TABLE_TEMPLATE  = 'table.tt';
+use Template;
 
 has 'schema' => (
     is       => 'ro',
@@ -79,22 +75,16 @@ has 'schema_namespace' => (
     isa     => 'Str',
 );
 
-has 'template_path' => (
-    is      => 'ro',
-    isa     => 'Str',
-    default => $TEMPLATE_DIR,
-);
-
 has 'schema_template' => (
     is      => 'ro',
     isa     => 'Str',
-    default => $SCHEMA_TEMPLATE,
+    default => ${ __PACKAGE__->section_data('schema.tt') },
 );
 
 has 'table_template' => (
     is      => 'ro',
     isa     => 'Str',
-    default => $TABLE_TEMPLATE,
+    default => ${ __PACKAGE__->section_data('table.tt') },
 );
 
 has 'cache' => (
@@ -113,7 +103,6 @@ sub _build__template {
     my $self = shift;
 
     my $tt = Template->new({
-        INCLUDE_PATH     => $self->template_path,
         OUTPUT_PATH      => $self->output_path,
         DEFAULT_ENCODING => 'utf-8',
     }) || die "$Template::ERROR\n";
@@ -154,7 +143,7 @@ sub _process_schema {
     };
 
     $self->_template->process(
-        $self->schema_template,
+        \$self->schema_template,
         $vars,
         $self->_gen_module_path($schema),
     ) or die $self->_template->error, "\n";
@@ -191,7 +180,7 @@ sub _process_table {
     };
 
     $self->_template->process(
-        $self->table_template,
+        \$self->table_template,
         $vars,
         $self->_gen_module_path($table),
     ) or die $self->_template->error, "\n";
@@ -204,9 +193,7 @@ sub _gen_module_path {
 }
 
 __PACKAGE__->meta->make_immutable;
-no Moose;
 1;
-__END__
 
 =head1 SYNOPSIS
 
@@ -267,21 +254,15 @@ Namespace for table module
 Namespace for schema module
 
 
-=attr template_path
-
-Template path. Default is the module installed directory.
-If you want to use your own template file then use this attribute.
-
-
 =attr schema_template
 
-Schema template file. Default is C<schema.tt>.
+Schema template string.
 If you want to use your own template file then use this attribute.
 
 
 =attr table_template
 
-Table template file. Default is C<table.tt>.
+Table template string.
 If you want to use your own template file then use this attribute.
 
 
@@ -299,3 +280,154 @@ Make the skeleton perl module.
 =head1 SEE ALSO
 
 L<Fey::ORM>
+
+=cut
+
+__DATA__
+
+__[ schema.tt ]__
+package [% SCHEMA %];
+
+use Fey::DBIManager::Source;
+use Fey::Loader;
+use Fey::ORM::Schema;
+[% FOREACH TABLE = TABLES -%]
+use [% TABLE %];
+[% END -%]
+[% IF CACHE -%]
+use Storable;
+use File::Basename;
+use File::Path qw(make_path);
+[% END -%]
+
+sub load {
+    my ( $class, %params ) = @_;
+
+    return unless $class;
+    return if     $class->Schema;
+
+    _load_schema(%params) or die "cannot load schema\n";
+    _load_tables(qw/
+[% FOREACH TABLE = TABLES -%]
+        [% TABLE %]
+[% END -%]
+    /) or die "cannot load tables\n";
+}
+
+sub _load_schema {
+    my %params = @_;
+
+    my %source_params = map {
+        defined $params{$_} ? ( $_ => $params{$_} ) : ();
+    } qw(
+        name
+        dbh
+        dsn
+        username
+        password
+        attributes
+        post_connect
+        auto_refresh
+        ping_interval
+    );
+
+    my $source = Fey::DBIManager::Source->new( %source_params );
+[% IF CACHE -%]
+    my $schema;
+    if ($params{cache_file} && -f $params{cache_file}) {
+        $schema = retrieve($params{cache_file});
+    }
+    else {
+        $schema = Fey::Loader->new( dbh => $source->dbh )->make_schema;
+    }
+[% ELSE -%]
+    my $schema = Fey::Loader->new( dbh => $source->dbh )->make_schema;
+[% END -%]
+    return if ref($schema) ne 'Fey::Schema';
+
+[% IF CACHE -%]
+    my $updated;
+[% END -%]
+    if ($params{fk_relations}) {
+[% IF CACHE -%]
+        ++$updated;
+[% END -%]
+        for my $relation ( @{ $params{fk_relations} } ) {
+            my $source_table  = $relation->{source_table};
+            my $source_column = $relation->{source_column};
+            my $target_table  = $relation->{target_table};
+            my $target_column = $relation->{target_column};
+
+            my $fk = Fey::FK->new(
+                source_columns => $schema->table($source_table)->column($source_column),
+                target_columns => $schema->table($target_table)->column($target_column),
+            );
+            $schema->add_foreign_key($fk);
+        }
+    }
+
+    #
+    # Add foreign key if it is needed or remove it
+    #
+    #my $fk;
+    #
+    #$fk = Fey::FK->new(
+    #    source_columns => $schema->table('src_table')->column('col_id'),
+    #    target_columns => $schema->table('dest_table')->column('col_id'),
+    #);
+    #$schema->add_foreign_key($fk);
+
+[% IF CACHE -%]
+    if ($params{cache_file}) {
+        if (!-e $params{cache_file} || $updated) {
+            my $dirname = dirname($params{cache_file});
+            make_path($dirname) unless -e $dirname;
+            store($schema, $params{cache_file});
+        }
+    }
+
+[% END -%]
+    has_schema $schema;
+
+    __PACKAGE__->DBIManager->add_source($source);
+
+    return 1;
+}
+
+sub _load_tables {
+    my @tables = @_;
+
+    $_->load for @tables;
+
+    return 1;
+}
+
+1;
+__[ table.tt ]__
+package [% TABLE %];
+use Fey::ORM::Table;
+use [% SCHEMA %];
+
+use Moose;
+use MooseX::SemiAffordanceAccessor;
+use MooseX::StrictConstructor;
+use namespace::autoclean;
+
+sub load {
+    my $class = shift;
+
+    return unless $class;
+    return if     $class->Table;
+
+    my $schema = [% SCHEMA %]->Schema;
+    my $table  = $schema->table('[% DB_TABLE %]');
+
+    has_table( $table );
+
+    #
+    # Add another relationships like has_one, has_many or etc.
+    #
+    #has_many items => ( table => $schema->table('item') );
+}
+
+1;
