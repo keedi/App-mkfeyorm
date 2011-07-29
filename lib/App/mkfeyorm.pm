@@ -13,7 +13,7 @@ use File::Spec::Functions;
 use Template;
 
 has 'schema' => (
-    is       => 'ro',
+    is       => 'rw',
     isa      => 'Str',
     required => 1,
 );
@@ -43,58 +43,69 @@ coerce 'TableRef',
     };
 
 has 'tables' => (
-    is       => 'ro',
+    is       => 'rw',
     isa      => 'TableRef',
     required => 1,
     coerce   => 1,
 );
 
 has '_db_tables' => (
-    is       => 'ro',
+    is       => 'rw',
     isa      => 'ArrayRef',
 );
 
 has 'output_path' => (
-    is      => 'ro',
+    is      => 'rw',
     isa     => 'Str',
     default => 'lib',
 );
 
+after 'set_output_path' => sub {
+    my ( $self, $path ) = @_;
+
+    my $tt = Template->new({
+        OUTPUT_PATH      => $self->output_path,
+        DEFAULT_ENCODING => 'utf-8',
+    }) || die "$Template::ERROR\n";
+
+    $self->_set_template($tt);
+};
+
 has 'namespace' => (
-    is      => 'ro',
+    is      => 'rw',
     isa     => 'Str',
 );
 
 has 'table_namespace' => (
-    is      => 'ro',
+    is      => 'rw',
     isa     => 'Str',
 );
 
 has 'schema_namespace' => (
-    is      => 'ro',
+    is      => 'rw',
     isa     => 'Str',
 );
 
 has 'schema_template' => (
-    is      => 'ro',
+    is      => 'rw',
     isa     => 'Str',
     default => ${ __PACKAGE__->section_data('schema.tt') },
 );
 
 has 'table_template' => (
-    is      => 'ro',
+    is      => 'rw',
     isa     => 'Str',
     default => ${ __PACKAGE__->section_data('table.tt') },
 );
 
 has 'cache' => (
-    is      => 'ro',
+    is      => 'rw',
     isa     => 'Bool',
     default => 0,
 );
 
 has '_template' => (
-    is         => 'ro',
+    is         => 'rw',
     isa        => 'Template',
     lazy_build => 1,
 );
@@ -113,11 +124,22 @@ sub _build__template {
 sub process {
     my $self = shift;
 
-    $self->_process_schema;
+    $self->process_schema;
     $self->_process_table($_, $self->tables->{$_}) for keys %{ $self->tables };
 }
 
-sub _process_schema {
+sub process_table {
+    my ( $self, @tables ) = @_;
+
+    if (@tables) {
+        $self->_process_table($_, $self->tables->{$_}) for @tables;
+    }
+    else {
+        $self->_process_table($_, $self->tables->{$_}) for keys %{ $self->tables };
+    }
+}
+
+sub process_schema {
     my $self = shift;
 
     my $schema = join(
@@ -236,7 +258,8 @@ Table module name list (required)
 
 =attr output_path
 
-Output path for generated modules
+Output path for generated modules.
+Default output directory is C<lib>.
 
 
 =attr namespace
@@ -274,7 +297,43 @@ It uses L<Storable> to save and load cache file.
 
 =method process
 
-Make the skeleton perl module.
+Generate the schema module & table module
+
+    my $app = App::mkfeyorm->new(
+        schema          => 'Schema',
+        tables          => {
+            User     => 'user',
+            Role     => 'role',
+            UserRole => 'user_role',
+        },
+        namespace       => 'Web::Blog',
+        table_namespace => 'Model',
+    );
+    $app->process;
+
+=method process_schema
+
+Generate the schema module.
+
+    my $app = App::mkfeyorm->new(
+        schema           => 'Schema',
+        tables           => [ qw/ User Role UserRole / ],
+        namespace        => 'Web::Blog',
+        table_namespace  => 'Model',
+    );
+    $app->process_schema;
+
+=method process_table
+
+Generate the table module.
+
+    my $app = App::mkfeyorm->new(
+        schema           => 'Schema',
+        tables           => [ qw/ User Role UserRole / ],
+        namespace        => 'Web::Blog',
+        table_namespace  => 'Model',
+    );
+    $app->process_table( qw/ User Role / );
 
 
 =head1 SEE ALSO
