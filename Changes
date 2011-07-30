@@ -2,7 +2,12 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
     - Use string rather than file for schema and table template
-    - Set attribute as rw and add process_schema and process_table API
+    - Set attribute as rw
+    - Add API
+        - process_schema
+        - process_table
+        - schema_module
+        - table_modules
     - Change attribute type
     - Support template parameters for who want to use their own template
 
