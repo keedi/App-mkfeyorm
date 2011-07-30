@@ -142,7 +142,7 @@ sub schema_module {
     return $full_name;
 }
 
-sub table_module {
+sub table_modules {
     my ( $self, @tables ) = @_;
 
     my @full_names;
@@ -220,7 +220,7 @@ sub _process_tables {
     $db_table = _db_table_name($orig_table) unless $db_table;
 
     my $schema     = $self->schema_module;
-    my ( $table )  = $self->table_module($orig_table);
+    my ( $table )  = $self->table_modules($orig_table);
 
     my $vars = {
         SCHEMA   => $schema,
