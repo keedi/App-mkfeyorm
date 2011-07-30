@@ -1,6 +1,9 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    - Use string rather than file for schema and table template
+    - Set attribute as rw and add process_schema and process_table API
+    - Change attribute type
 
 0.006     2011-07-28 13:15:49 Asia/Seoul
     - Support explicit table name
