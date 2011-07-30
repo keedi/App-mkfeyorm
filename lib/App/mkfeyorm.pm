@@ -127,6 +127,55 @@ sub _build__template {
     return $tt;
 }
 
+sub schema_module {
+    my $self = shift;
+
+    my $full_name = join(
+        '::',
+        grep { $_ } (
+            $self->namespace,
+            $self->schema_namespace,
+            $self->schema
+        )
+    );
+
+    return $full_name;
+}
+
+sub table_module {
+    my ( $self, @tables ) = @_;
+
+    my @full_names;
+    if (@tables) {
+        for my $table (@tables) {
+            my $full_name = join(
+                '::',
+                grep { $_ } (
+                    $self->namespace,
+                    $self->table_namespace,
+                    $table,
+                )
+            );
+            push @full_names, $full_name;
+        }
+    }
+    else {
+        for my $table ( sort keys %{ $self->tables } ) {
+            my $full_name = join(
+                '::',
+                grep { $_ } (
+                    $self->namespace,
+                    $self->table_namespace,
+                    $table,
+                )
+            );
+            push @full_names, $full_name;
+        }
+    }
+
+    return @full_names;
+}
+
 sub process {
     my $self = shift;
 
@@ -148,21 +197,8 @@ sub process_table {
 sub process_schema {
     my $self = shift;
 
-    my $schema = join(
-        '::',
-        grep { $_ } (
-            $self->namespace,
-            $self->schema_namespace,
-            $self->schema,
-        )
-    );
-
-    my @tables = map {
-        join(
-            '::',
-            grep { $_ } ( $self->namespace, $self->table_namespace, $_ )
-        );
-    } sort keys %{$self->tables};
+    my $schema = $self->schema_module;
+    my @tables = $self->table_modules;
 
     my $vars = {
         SCHEMA => $schema,
@@ -183,23 +219,8 @@ sub _process_table {
 
     $db_table = _db_table_name($orig_table) unless $db_table;
 
-    my $schema = join(
-        '::',
-        grep { $_ } (
-            $self->namespace,
-            $self->schema_namespace,
-            $self->schema
-        )
-    );
-
-    my $table = join(
-        '::',
-        grep { $_ } (
-            $self->namespace,
-            $self->table_namespace,
-            $orig_table,
-        )
-    );
+    my $schema     = $self->schema_module;
+    my ( $table )  = $self->table_module($orig_table);
 
     my $vars = {
         SCHEMA   => $schema,
@@ -336,11 +357,13 @@ Generate the schema module & table module
     );
     $app->process;
 
+
 =method process_schema
 
 Generate the schema module.
 
     $app->process_schema;
+
 
 =method process_table
 
@@ -348,6 +371,15 @@ Generate the table module.
 
     $app->process_table;                    # generates all tables
     $app->process_table( qw/ User Role / ); # generates User and Role tables
+
+=method schema_module
+
+Get full name of schema module
+
+
+=method table_modules
+
+Get full names of table modules
 
 
 =head1 SEE ALSO
