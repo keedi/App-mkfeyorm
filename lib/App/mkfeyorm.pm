@@ -250,16 +250,26 @@ At least C<schema> and C<tables> attributes are needed.
 
 Schema module name (required)
 
+    my $schema_module_name = $self->schema;
+    $self->set_schema($schema_module_name);
+
 
 =attr tables
 
 Table module name list (required)
+
+    my $table_module_names_ref = $self->tables;
+    $self->set_tables(\@table_module_names);
+    $self->set_tables(\%table_module_names);
 
 
 =attr output_path
 
 Output path for generated modules.
 Default output directory is C<lib>.
+
+    my $output_path = $self->output_path;
+    $self->set_output_path($output_path);
 
 
 =attr namespace
@@ -315,25 +325,14 @@ Generate the schema module & table module
 
 Generate the schema module.
 
-    my $app = App::mkfeyorm->new(
-        schema           => 'Schema',
-        tables           => [ qw/ User Role UserRole / ],
-        namespace        => 'Web::Blog',
-        table_namespace  => 'Model',
-    );
     $app->process_schema;
 
 =method process_table
 
 Generate the table module.
 
-    my $app = App::mkfeyorm->new(
-        schema           => 'Schema',
-        tables           => [ qw/ User Role UserRole / ],
-        namespace        => 'Web::Blog',
-        table_namespace  => 'Model',
-    );
-    $app->process_table( qw/ User Role / );
+    $app->process_table;                    # generates all tables
+    $app->process_table( qw/ User Role / ); # generates User and Role tables
 
 
 =head1 SEE ALSO
