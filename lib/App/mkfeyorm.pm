@@ -180,17 +180,17 @@ sub process {
     my $self = shift;
 
     $self->process_schema;
-    $self->_process_table($_, $self->tables->{$_}) for keys %{ $self->tables };
+    $self->_process_tables($_, $self->tables->{$_}) for keys %{ $self->tables };
 }
 
-sub process_table {
+sub process_tables {
     my ( $self, @tables ) = @_;
 
     if (@tables) {
-        $self->_process_table($_, $self->tables->{$_}) for @tables;
+        $self->_process_tables($_, $self->tables->{$_}) for @tables;
     }
     else {
-        $self->_process_table($_, $self->tables->{$_}) for keys %{ $self->tables };
+        $self->_process_tables($_, $self->tables->{$_}) for keys %{ $self->tables };
     }
 }
 
@@ -214,7 +214,7 @@ sub process_schema {
     ) or die $self->_template->error, "\n";
 }
 
-sub _process_table {
+sub _process_tables {
     my ( $self, $orig_table, $db_table ) = @_;
 
     $db_table = _db_table_name($orig_table) unless $db_table;
@@ -365,12 +365,12 @@ Generate the schema module.
     $app->process_schema;
 
 
-=method process_table
+=method process_tables
 
 Generate the table module.
 
-    $app->process_table;                    # generates all tables
-    $app->process_table( qw/ User Role / ); # generates User and Role tables
+    $app->process_tables;                  # generates all tables
+    $app->process_tables(qw/ User Role /); # generates User and Role tables
 
 =method schema_module
 

@@ -5,7 +5,7 @@ Revision history for {{$dist->name}}
     - Set attribute as rw
     - Add API
         - process_schema
-        - process_table
+        - process_tables
         - schema_module
         - table_modules
     - Change attribute type
