@@ -2,6 +2,17 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+0.007     2011-07-31 05:27:27 Asia/Seoul
+    - Use string rather than file for schema and table template
+    - Set attribute as rw
+    - Add API
+        - process_schema
+        - process_tables
+        - schema_module
+        - table_modules
+    - Change attribute type
+    - Support template parameters for who want to use their own template
+
 0.006     2011-07-28 13:15:49 Asia/Seoul
     - Support explicit table name
     - Make cache directory automatically
