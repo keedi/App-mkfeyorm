@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.007     2011-07-31 05:27:27 Asia/Seoul
     - Use string rather than file for schema and table template
     - Set attribute as rw
     - Add API
