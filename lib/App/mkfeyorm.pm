@@ -104,6 +104,12 @@ has 'cache' => (
     default => 0,
 );
 
+has 'template_params' => (
+    is      => 'rw',
+    isa     => 'HashRef',
+    default => sub { {} },
+);
+
 has '_template' => (
     is         => 'rw',
     isa        => 'Template',
@@ -162,6 +168,7 @@ sub process_schema {
         SCHEMA => $schema,
         TABLES => \@tables,
         CACHE  => $self->cache,
+        PARAMS => $self->template_params,
     };
 
     $self->_template->process(
@@ -199,6 +206,7 @@ sub _process_table {
         TABLE    => $table,
         CACHE    => $self->cache,
         DB_TABLE => $db_table,
+        PARAMS   => $self->template_params,
     };
 
     $self->_template->process(
@@ -303,6 +311,13 @@ If you want to use your own template file then use this attribute.
 
 Use cache feature or not. Default is false.
 It uses L<Storable> to save and load cache file.
+
+
+=attr template_params
+
+Hash reference for templating.
+Set this attribute if you want to use additional parameters
+in your own templates.
 
 
 =method process
