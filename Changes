@@ -2,6 +2,14 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+0.008     2011-08-03 04:12:33 Asia/Seoul
+    - Add API
+        - process_table
+        - module_path
+    - Return generated module content if user want
+        - process_schema
+        - process_table
+
 0.007     2011-07-31 05:27:27 Asia/Seoul
     - Use string rather than file for schema and table template
     - Set attribute as rw

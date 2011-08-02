@@ -180,22 +180,22 @@ sub process {
     my $self = shift;
 
     $self->process_schema;
-    $self->_process_tables($_, $self->tables->{$_}) for keys %{ $self->tables };
+    $self->process_table($_, $self->tables->{$_}) for keys %{ $self->tables };
 }
 
 sub process_tables {
     my ( $self, @tables ) = @_;
 
     if (@tables) {
-        $self->_process_tables($_, $self->tables->{$_}) for @tables;
+        $self->process_table($_, $self->tables->{$_}) for @tables;
     }
     else {
-        $self->_process_tables($_, $self->tables->{$_}) for keys %{ $self->tables };
+        $self->process_table($_, $self->tables->{$_}) for keys %{ $self->tables };
     }
 }
 
 sub process_schema {
-    my $self = shift;
+    my ( $self, $content ) = @_;
 
     my $schema = $self->schema_module;
     my @tables = $self->table_modules;
@@ -210,12 +210,12 @@ sub process_schema {
     $self->_template->process(
         \$self->schema_template,
         $vars,
-        $self->_gen_module_path($schema),
+        ref $content eq 'SCALAR' ? $content : $self->module_path($schema),
     ) or die $self->_template->error, "\n";
 }
 
-sub _process_tables {
-    my ( $self, $orig_table, $db_table ) = @_;
+sub process_table {
+    my ( $self, $orig_table, $db_table, $content ) = @_;
 
     $db_table = _db_table_name($orig_table) unless $db_table;
 
@@ -233,11 +233,11 @@ sub _process_tables {
     $self->_template->process(
         \$self->table_template,
         $vars,
-        $self->_gen_module_path($table),
+        ref $content eq 'SCALAR' ? $content : $self->module_path($table),
     ) or die $self->_template->error, "\n";
 }
 
-sub _gen_module_path {
+sub module_path {
     my ( $self, $module ) = @_;
 
     return catfile( split(/::/, $module) ) . '.pm';
@@ -365,6 +365,13 @@ Generate the schema module.
     $app->process_schema;
 
 
+=method process_table
+
+Generate the talbe module.
+
+    $app->process_table;
+
+
 =method process_tables
 
 Generate the table module.
@@ -380,6 +387,11 @@ Get full name of schema module
 =method table_modules
 
 Get full names of table modules
+
+
+=method module_path
+
+Get module path from module names
 
 
 =head1 SEE ALSO
@@ -399,6 +411,7 @@ use Fey::ORM::Schema;
 [% FOREACH TABLE = TABLES -%]
 use [% TABLE %];
 [% END -%]
+
 [% IF CACHE -%]
 use Storable;
 use File::Basename;
