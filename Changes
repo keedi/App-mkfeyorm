@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    - Work-around statistics_info() method call, since DBD::mysql 4.019
 
 0.008     2011-08-03 04:12:33 Asia/Seoul
     - Add API
