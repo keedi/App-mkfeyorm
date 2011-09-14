@@ -2,6 +2,10 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+0.010     2011-09-15 03:12:08 Asia/Seoul
+    - Remove needless monkey patch code, Fey::Loader fix that issue
+      from version 0.13
+
 0.009     2011-08-30 14:46:42 Asia/Seoul
     - Work-around statistics_info() method call, since DBD::mysql 4.019
 
