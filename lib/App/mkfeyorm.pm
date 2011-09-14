@@ -456,18 +456,7 @@ sub _load_schema {
         $schema = retrieve($params{cache_file});
     }
     else {
-        my $loader = Fey::Loader->new( dbh => $source->dbh );
-        my $dbh = $loader->dbh;
-        if (   $dbh
-            && $dbh->{Driver}
-            && $dbh->{Driver}{Name}
-            && $loader->dbh->{Driver}{Name} eq 'mysql' )
-        {
-            eval 'use DBD::mysql';
-            no warnings 'redefine';
-            *DBD::mysql::db::statistics_info = \&DBD::mysql::Fixup::_statistics_info;
-        }
-        $schema = $loader->make_schema;
+        $schema = Fey::Loader->new( dbh => $source->dbh )->make_schema;
     }
 [% ELSE -%]
     my $schema = Fey::Loader->new( dbh => $source->dbh )->make_schema;
